@@ -1,0 +1,19 @@
+body {
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+.bg-primary {
+    background-color: steelblue !important;
+}
+.text-primary {
+    color: steelblue !important;
+}
+a {
+    color: steelblue;
+    text-decoration: underline;
+}
+.subheading {
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+p{
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cucumber Catcher</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #87CEEB;
+        }
+        canvas {
+            border: 2px solid black;
+        }
+        #gameOver {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border: 2px solid black;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Cucumber Catcher</h1>
+        <canvas id="gameCanvas" width="400" height="600"></canvas>
+        <br>
+        <a href="scratch.html">Scratch page</a>
+        <br>
+        <br>
+    </div>
+    <div id="gameOver">
+        <h1>Game Over</h1>
+        <p>Your Score: <span id="finalScore"></span></p>
+        <button onclick="restartGame()">Restart</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const dog = {
+            x: canvas.width / 2,
+            y: canvas.height - 80,
+            width: 80,
+            height: 80
+        };
+
+        let cucumbers = [];
+        let score = 0;
+        let gameRunning = true;
+        let difficulty = 1;
+
+        function drawDog() {
+            // Head
+            ctx.fillStyle = '#F0E68C'; // Khaki color for a blonde look
+            ctx.beginPath();
+            ctx.arc(dog.x + dog.width/2, dog.y + dog.height/2, dog.width/2, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Ears
+            ctx.beginPath();
+            ctx.moveTo(dog.x + 10, dog.y + 20);
+            ctx.lineTo(dog.x - 10, dog.y - 10);
+            ctx.lineTo(dog.x + 30, dog.y);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.moveTo(dog.x + dog.width - 10, dog.y + 20);
+            ctx.lineTo(dog.x + dog.width + 10, dog.y - 10);
+            ctx.lineTo(dog.x + dog.width - 30, dog.y);
+            ctx.fill();
+
+            // Eyes
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(dog.x + 25, dog.y + 30, 10, 0, Math.PI * 2);
+            ctx.arc(dog.x + 55, dog.y + 30, 10, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = 'black';
+            ctx.beginPath();
+            ctx.arc(dog.x + 25, dog.y + 30, 5, 0, Math.PI * 2);
+            ctx.arc(dog.x + 55, dog.y + 30, 5, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Nose
+            ctx.fillStyle = 'black';
+            ctx.beginPath();
+            ctx.arc(dog.x + 40, dog.y + 50, 7, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Tongue
+            ctx.fillStyle = 'pink';
+            ctx.beginPath();
+            ctx.ellipse(dog.x + 40, dog.y + 65, 10, 5, 0, 0, Math.PI);
+            ctx.fill();
+        }
+
+        function drawCucumber(cucumber) {
+            ctx.fillStyle = 'green';
+            ctx.fillRect(cucumber.x, cucumber.y, cucumber.width, cucumber.height);
+            
+            ctx.strokeStyle = 'darkgreen';
+            ctx.beginPath();
+            ctx.arc(cucumber.x + cucumber.width/2, cucumber.y + cucumber.height/2, cucumber.width/2 - 1, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+
+        function createCucumber() {
+            return {
+                x: Math.random() * (canvas.width - 20),
+                y: 0,
+                width: 20,
+                height: 5,
+                speed: 2 + Math.random() * 3 * difficulty
+            };
+        }
+
+        function updateGame() {
+            if (!gameRunning) return;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            drawDog();
+
+            if (Math.random() < 0.02 * difficulty) {
+                cucumbers.push(createCucumber());
+            }
+
+            for (let i = cucumbers.length - 1; i >= 0; i--) {
+                let cucumber = cucumbers[i];
+                cucumber.y += cucumber.speed;
+                drawCucumber(cucumber);
+
+                if (cucumber.y + cucumber.height > dog.y &&
+                    cucumber.x < dog.x + dog.width &&
+                    cucumber.x + cucumber.width > dog.x) {
+                    cucumbers.splice(i, 1);
+                    score++;
+                } else if (cucumber.y > canvas.height) {
+                    endGame();
+                    return;
+                }
+            }
+
+            ctx.fillStyle = 'black';
+            ctx.font = '20px Arial';
+            ctx.fillText('Score: ' + score, 10, 30);
+
+            difficulty += 0.001;
+
+            requestAnimationFrame(updateGame);
+        }
+
+        function endGame() {
+            gameRunning = false;
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('gameOver').style.display = 'block';
+        }
+
+        function restartGame() {
+            score = 0;
+            cucumbers = [];
+            gameRunning = true;
+            difficulty = 1;
+            document.getElementById('gameOver').style.display = 'none';
+            updateGame();
+        }
+
+        canvas.addEventListener('mousemove', (event) => {
+            const rect = canvas.getBoundingClientRect();
+            dog.x = event.clientX - rect.left - dog.width / 2;
+
+            if (dog.x < 0) dog.x = 0;
+            if (dog.x + dog.width > canvas.width) dog.x = canvas.width - dog.width;
+        });
+
+        updateGame();
+    </script>
+</body>
+</html>
